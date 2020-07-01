@@ -17,8 +17,8 @@ You also need to copy indel.html under SD folder onto a micro SD card and insert
 
 ### Roomba module for M5
 I also made a Roomba interface for M5Stack. To make the interface, you need to get a 3.3-5V level shifter for UART level conversion [like this](http://akizukidenshi.com/download/ds/akizuki/ae-fxma2102-web.pdf), and preferably a stepdown regulator[like this](http://akizukidenshi.com/download/ds/toshiba/TA48M025.03.033.0345.04.05F.pdf) to supply 5V to the M5Stack. You could power up the M5 using battery module, but because the software access point feature consumes considerable power, I decided to draw power from Roomba's battery. Currently I'm using simple step down converter 48M05F, which generates considerable amout of heat. I might consider swaping it with a small switching regulator module in the future.
-![Schematic Diagram](https://github.com/1-10/2007_RoombaWifiController/blob/master/pics/schematic.jpg?raw=true)
-![Set up](https://github.com/1-10/2007_RoombaWifiController/blob/master/pics/M5Module.jpg?raw=true)
+![Schematic Diagram](https://github.com/1-10/2007_RoombaWifiController/blob/master/pics/schematic.png?raw=true)
+![Set up](https://github.com/1-10/2007_RoombaWifiController/blob/master/pics/m5Module.jpg?raw=true)
 ![PCB front](https://github.com/1-10/2007_RoombaWifiController/blob/master/pics/pcb1.jpg?raw=true)
 ![PCB rear](https://github.com/1-10/2007_RoombaWifiController/blob/master/pics/pcb2.jpg?raw=true)
 
