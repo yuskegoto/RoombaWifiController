@@ -2,14 +2,11 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" charset="UTF-8">
-    <link rel="icon" type="image/x-icon" href="http://yuskegoto.net/images/myicon.ico" />
     <title>Roomba web interface for M5Stack</title>
     <script>
-        /* Disable scaling with pinch-in-out */
         document.documentElement.addEventListener('touchstart', function (e) {
         if (e.touches.length >= 2) {e.preventDefault();}
         }, {passive: false});
-        /* disable enlarge with double tap */
         var t = 0;
         document.documentElement.addEventListener('touchend', function (e) {
         var now = new Date().getTime();

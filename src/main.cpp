@@ -4,6 +4,7 @@
 #include <Wifi.h>
 #include <WiFiClient.h>
 #include <WiFiAP.h>
+#include <DNSServer.h>
 
 #include "utils/Debug.h"
 #include "Roomba.h"
@@ -20,8 +21,11 @@ Roomba roomba(&Serial2, ROOMBA_BRC);
 Status status;
 Action action;
 
-const char *ssid = "rb";
-const char *password = "";
+const char *SSID = "rb";
+// const char *password = "";
+const byte DNS_PORT = 53;
+IPAddress apIP(ACCESSPOINT_IP1, ACCESSPOINT_IP2, ACCESSPOINT_IP3, ACCESSPOINT_IP4);
+DNSServer dnsServer;
 WiFiServer server(80);
 
 /////////////////////// Coding Part /////////////////////////////////////////
@@ -168,6 +172,22 @@ void processWebRequest(WiFiClient* client, Action* act){
     // return action;
 }
 
+void setupWiFi(String myName)
+{
+// on wifi ap mode
+    WiFi.disconnect();   //added to start with the wifi off, avoid crashing
+    WiFi.mode(WIFI_OFF); //added to start with the wifi off, avoid crashing
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    WiFi.softAP(myName.c_str());
+    // WiFi.softAP(ssid);
+
+    // if DNSServer is started with "*" for domain name, it will reply with
+    // provided IP to all DNS request
+    dnsServer.start(DNS_PORT, "*", apIP);
+    server.begin();
+
+}
 
 void setup() {
     updateTimer = millis();
@@ -185,8 +205,10 @@ void setup() {
 
     roomba.roboInitSequence();
 
-    WiFi.softAP(ssid, password);
-    server.begin();
+    // WiFi.softAP(ssid, password);
+    // server.begin();
+    String deviceName = SSID;
+    setupWiFi(deviceName);
 
     if (!SD.begin()) M5.Lcd.println("Insert SD and tap power button plz.");
 
@@ -196,21 +218,16 @@ void setup() {
 
 
 void loop() {
-    WiFiClient client;
-    SensorData data;
-    bool updated = false;
-
     if(millis() - updateTimer > UPDATE_RATE_ms){
+        dnsServer.processNextRequest();
+        WiFiClient client;
+        SensorData data;
+
         client = server.available();   // listen for incoming clients
 
         // Check machine state
         data = status.read();
         updateTimer = millis();
-        updated = true;
-    }
-
-
-    if(updated){
         // if you get a client request, responce web page, parse the request and return robo action
         if (client) processWebRequest(&client, &action);
 
@@ -252,4 +269,5 @@ void loop() {
         else{
         }
     }
+    delay(1);
 }

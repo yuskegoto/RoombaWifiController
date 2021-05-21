@@ -24,3 +24,8 @@
 #define MOTOR_SPEED_STEP 20
 #define DISTANCE_LIMIT 10000
 
+////////////////// AP set up //////////////////////////
+#define ACCESSPOINT_IP1 192
+#define ACCESSPOINT_IP2 168
+#define ACCESSPOINT_IP3 4
+#define ACCESSPOINT_IP4 1
