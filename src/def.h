@@ -5,8 +5,10 @@
 
 ////////////////////// Debug Config ///////////////////
 #define MONITOR_BAUD 115200
-// #define MONITOR_BAUD 9600
-#define DEBUG_LEVEL DEBUG_GENERAL | DEBUG_CONTROL
+#define DEBUG_LEVEL DEBUG_GENERAL | DEBUG_CONTROL | DEBUG_SPIFFS | DEBUG_WIFI
+#define DEBUG_ONLY_WEB
+#define ENABLE_DNS
+#define ENABLE_WIFI_AP
 
 ////////////////////// Pin config ///////////////////
 // M5-Roomba module pins
@@ -21,7 +23,9 @@
 #define ROOMBA_LOST_LIMIT 60000
 
 ////////////////// Roomba set up //////////////////////////
+#define MOTOR_SPEED_FACTOR 2.5f
 #define MOTOR_SPEED_STEP 20
+#define SPEED_LIMIT 100
 #define DISTANCE_LIMIT 10000
 
 ////////////////// AP set up //////////////////////////

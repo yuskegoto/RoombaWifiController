@@ -33,6 +33,14 @@ void Action::turnLeft(){
     updated = true;
 }
 
+void Action::setXY2Speed(int cx, int cy)
+{
+    motorR = (-cy - cx) * MOTOR_SPEED_FACTOR;
+    motorL = (-cy + cx) * MOTOR_SPEED_FACTOR;
+
+    updated = true;
+}
+
 void Action::toggleCleaningMotors(){
     if (cleaning) cleaning = false;
     else cleaning = true;

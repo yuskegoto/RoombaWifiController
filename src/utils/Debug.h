@@ -10,11 +10,13 @@
 #include "Status.h"
 // #include "Movement.h"
 
-#define DEBUG_GENERAL   0x01
-#define DEBUG_SENSOR    0x02
-#define DEBUG_MOVE      0x04
-#define DEBUG_ACTION    0x08
-#define DEBUG_CONTROL   0x10
+#define DEBUG_GENERAL   bit(0)
+#define DEBUG_SENSOR    bit(1)//0x02
+#define DEBUG_MOVE      bit(2)//0x04
+#define DEBUG_ACTION    bit(3)//0x08
+#define DEBUG_CONTROL   bit(4)//0x10
+#define DEBUG_SPIFFS    bit(5)//0x20
+#define DEBUG_WIFI      bit(6)//0x20
 
 class Debug{
 
@@ -23,7 +25,7 @@ class Debug{
 
         Debug(Stream *s, uint8_t);
         int getFreeRam();
-        
+        size_t printf(uint8_t level, const char *format, ...);
         void println(const __FlashStringHelper*, uint8_t level);
         void print(const __FlashStringHelper*, uint8_t level);
         void println(String, uint8_t level);

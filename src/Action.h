@@ -16,6 +16,7 @@ class Action{
     void stop(void);
     void turnRight(void);
     void turnLeft(void);
+    void setXY2Speed(int x, int y);
     void toggleCleaningMotors(void);
 };
 

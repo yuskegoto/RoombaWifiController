@@ -397,7 +397,7 @@ bool Roomba::roboInitSequence(){
   bool roboStart = false;
 
   if(!roboInit()){
-    for(uint8_t i = 0; i < 2; i ++){
+    for(uint8_t i = 0; i < SERIAL_RETRY_COUNT; i ++){
       delay(1000);
       reset();
       delay(3000);

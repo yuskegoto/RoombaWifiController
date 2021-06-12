@@ -12,6 +12,7 @@
 
 #define STREAM_PACKET 19
 #define ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
+#define SERIAL_RETRY_COUNT 10
 
 class Roomba{
 
