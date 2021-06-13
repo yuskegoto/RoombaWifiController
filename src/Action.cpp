@@ -52,3 +52,8 @@ void Action::toggleCleaningMotors(){
     updated = true;
 
 }
+void Action::stopCleaningMotors()
+{
+    cleaning = false;
+    updated = true;
+}

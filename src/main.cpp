@@ -160,6 +160,8 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
         break;
     case WS_EVT_DISCONNECT:
         Serial.printf("WebSocket client #%u disconnected\n", client->id());
+        action.stop();  	// for safety, stop 
+
         break;
     case WS_EVT_DATA:
         handleWebSocketMessage(arg, data, len);
@@ -304,6 +306,7 @@ void setup() {
     debug.println(F("M5-Roomba"), DEBUG_GENERAL);
 
     M5.begin();
+    M5.Power.begin();
     M5.Lcd.clear(BLACK);
     M5.Lcd.setTextColor(YELLOW);
     M5.Lcd.setTextSize(1);
