@@ -6,7 +6,7 @@
 ////////////////////// Debug Config ///////////////////
 #define MONITOR_BAUD 115200
 #define DEBUG_LEVEL DEBUG_GENERAL | DEBUG_CONTROL | DEBUG_SPIFFS | DEBUG_WIFI
-#define DEBUG_ONLY_WEB
+// #define DEBUG_ONLY_WEB
 #define ENABLE_DNS
 #define ENABLE_WIFI_AP
 

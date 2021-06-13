@@ -11,7 +11,7 @@
 #include <ESPAsyncWebServer.h>
 #ifndef ENABLE_WIFI_AP
 // #include "WiFiManager.h" //https://github.com/tzapu/WiFiManager
-#include "ESPAsyncWiFiManager.h" //https://github.com/alanswx/ESPAsyncWiFiManager
+// #include "ESPAsyncWiFiManager.h" //https://github.com/alanswx/ESPAsyncWiFiManager
 #endif
 
 #include "SPIFFS.h"
@@ -43,12 +43,18 @@ DNSServer dnsServer;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-bool ledState = false;
+bool machineState = false;
 
-
+/////////////////////// Coding Part /////////////////////////////////////////
 void notifyClients()
 {
-    ws.textAll(String(ledState));
+    ws.textAll(String(machineState));
+}
+
+void setMachineState(bool state)
+{
+    machineState = state;
+    notifyClients();
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -64,17 +70,18 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
         debug.println("", DEBUG_CONTROL);
 
 
-        if (strcmp((char *)data, "toggle") == 0)
-        { 
-            ledState = !ledState;
-            notifyClients();
-            if(ledState)
-                debug.println("on", DEBUG_CONTROL);
-            else
-                debug.println("off", DEBUG_CONTROL);
-        }
+        // if (strcmp((char *)data, "toggle") == 0)
+        // { 
+        //     machineState = !machineState;
+        //     notifyClients();
+        //     if(machineState)
+        //         debug.println("on", DEBUG_CONTROL);
+        //     else
+        //         debug.println("off", DEBUG_CONTROL);
+        // }
 
-        else if (strcmp((char *)data, "f") == 0)
+        // else if (strcmp((char *)data, "f") == 0)
+        if (strcmp((char *)data, "f") == 0)
         {
             debug.println("forward", DEBUG_CONTROL);
             action.forward();
@@ -174,7 +181,7 @@ String processor(const String &var)
     debug.println(var, DEBUG_CONTROL);
     if (var == "STATE")
     {
-        if (ledState)
+        if (machineState)
         {
             return "ON";
         }
@@ -186,34 +193,32 @@ String processor(const String &var)
     return String();
 }
 
-/////////////////////// Coding Part /////////////////////////////////////////
-char *strToChar(String str)
-{
-	int len = str.length() + 1;
-	char *buf = new char[len];
-	strcpy(buf, str.c_str());
-	return buf;
-}
+// char *strToChar(String str)
+// {
+// 	int len = str.length() + 1;
+// 	char *buf = new char[len];
+// 	strcpy(buf, str.c_str());
+// 	return buf;
+// }
 
-String TFReadFile(String path)
-{
-	String buf = "";
-	File file = SD.open(strToChar(path));
-	if (file)
-	{
-		while (file.available())
-		{
-			buf += (char)file.read();
-		}
-		file.close();
-	}
-	return buf;
-}
+// String TFReadFile(String path)
+// {
+// 	String buf = "";
+// 	File file = SD.open(strToChar(path));
+// 	if (file)
+// 	{
+// 		while (file.available())
+// 		{
+// 			buf += (char)file.read();
+// 		}
+// 		file.close();
+// 	}
+// 	return buf;
+// }
 
 void showQR(){
     M5.Lcd.clear();
 //   M5.Lcd.qrcode(const char *string, uint16_t x = 50, uint16_t y = 10, uint8_t width = 220, uint8_t version = 6);
-    // M5.Lcd.qrcode("http://192.168.4.1");
     String ipAddress = "http://";
     #ifdef ENABLE_WIFI_AP
     ipAddress += WiFi.softAPIP().toString();
@@ -224,32 +229,32 @@ void showQR(){
     debug.println(ipAddress, DEBUG_WIFI);
 }
 
-String openPage(String page)
-{
-	debug.print(F("Opening Page: "), DEBUG_CONTROL);
-	debug.println(page, DEBUG_CONTROL);
-	String content = "";
+// String openPage(String page)
+// {
+// 	debug.print(F("Opening Page: "), DEBUG_CONTROL);
+// 	debug.println(page, DEBUG_CONTROL);
+// 	String content = "";
 
-	// load page event
-	if (page == "/")
-	{
-		content = TFReadFile("/index.html");
-	}
+// 	// load page event
+// 	if (page == "/")
+// 	{
+// 		content = TFReadFile("/index.html");
+// 	}
 	
-	if (content != "")  return content;
-	else return "# 404 NOT FOUND #\n"; // if not found
-}
+// 	if (content != "")  return content;
+// 	else return "# 404 NOT FOUND #\n"; // if not found
+// }
 
-int cntChrs(String str, char chr)
-{
-	int cnt = 0;
-	for (int i = 0; i < str.length(); i++)
-	{
-		if (str[i] == chr)
-			cnt++;
-	}
-	return cnt;
-}
+// int cntChrs(String str, char chr)
+// {
+// 	int cnt = 0;
+// 	for (int i = 0; i < str.length(); i++)
+// 	{
+// 		if (str[i] == chr)
+// 			cnt++;
+// 	}
+// 	return cnt;
+// }
 
 // void configModeCallback(WiFiManager *myWiFiManager)
 // {
@@ -343,56 +348,46 @@ void loop()
     dnsServer.processNextRequest();
 #endif
     ws.cleanupClients();
-    // if(millis() - updateTimer > UPDATE_RATE_ms){
-    //     dnsServer.processNextRequest();
-    //     WiFiClient client;
-        SensorData data;
+    SensorData data;
 
-    //     client = server.available();   // listen for incoming clients
+    // Check machine state
+    data = status.read();
 
-        // Check machine state
-        data = status.read();
-    //     updateTimer = millis();
-    //     // if you get a client request, responce web page, parse the request and return robo action
-    //     if (client) processWebRequest(&client, &action);
+    if(action.updated){
+        debug.println("updated", DEBUG_ACTION);
+        roomba.driveDirect(action.motorR, action.motorL);
 
-        if(action.updated){
-            debug.println("updated", DEBUG_ACTION);
-            roomba.driveDirect(action.motorR, action.motorL);
+        roomba.toggleCleaning(action.cleaning);
+        setMachineState(action.cleaning);
+        action.updated = false;
+    }
 
-            roomba.toggleCleaning(action.cleaning);
-            action.updated = false;
-        }
+    if(data.buttonA_pressed){
+        showQR();
+        debug.ledOn();
+        roomba.playBeep(APP_BEEP);
+        debug.println(F("QR"), DEBUG_GENERAL);
+        
+        action.stop();
+        roomba.driveDirect(0, 0);
 
-        if(data.buttonA_pressed){
-            showQR();
-            debug.ledOn();
-            roomba.playBeep(APP_BEEP);
-            debug.println(F("QR"), DEBUG_GENERAL);
-            
-            action.stop();
-            roomba.driveDirect(0, 0);
-
-        }
-        if (data.buttonB_pressed){
-            debug.ledOff();
-            M5.Lcd.clear();
-            M5.Lcd.setCursor(0,0);
-            M5.Lcd.println("Cleaning Start");
-            roomba.toggleCleaning(true);
-            // action.stop();
-            roomba.driveDirect(0, 0);
-        }
-        if (data.buttonC_pressed){
-            M5.Lcd.clear();
-            M5.Lcd.setCursor(0,0);
-            M5.Lcd.println("Cleaning Stop");
-            // action.stop();
-            roomba.toggleCleaning(false);
-            roomba.driveDirect(0, 0);
-        }
-    //     else{
-    //     }
-    // }
+    }
+    if (data.buttonB_pressed){
+        debug.ledOff();
+        M5.Lcd.clear();
+        M5.Lcd.setCursor(0,0);
+        M5.Lcd.println("Cleaning Start");
+        roomba.toggleCleaning(true);
+        // action.stop();
+        roomba.driveDirect(0, 0);
+    }
+    if (data.buttonC_pressed){
+        M5.Lcd.clear();
+        M5.Lcd.setCursor(0,0);
+        M5.Lcd.println("Cleaning Stop");
+        // action.stop();
+        roomba.toggleCleaning(false);
+        roomba.driveDirect(0, 0);
+    }
     delay(1);
 }

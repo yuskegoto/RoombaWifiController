@@ -35,6 +35,11 @@ void Action::turnLeft(){
 
 void Action::setXY2Speed(int cx, int cy)
 {
+    // needs to invert cx when going backward
+    if(cy > 0)
+    {
+        cx *= -1;
+    }
     motorR = (-cy - cx) * MOTOR_SPEED_FACTOR;
     motorL = (-cy + cx) * MOTOR_SPEED_FACTOR;
 

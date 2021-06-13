@@ -84,21 +84,14 @@
     <h1>ESP WebSocket Roomba controller</h1>
   </div>
   <div class="content">
-    <div class="card"  onmousedown="coordinatesFunc(event, this)">
+    <div class="card" id="card" ontouchmove="coordinatesFunc(event, this)">
       <svg height="600px" width="100%%" style="stroke:rgb(200,200,200);stroke-width:1">
       <line x1="50%%" y1="0" x2="50%%" y2="100%%" />
       <line x1="0" y1="50%%" x2="100%%" y2="50%%"/>
     </svg>
-      <!-- <p><button id="buttons" class="button">Toggle</button></p>
-        <p><button id="btn_f" class="button">&uarr;</button></p>
-        <p>
-          <button id="btn_l" class="button">&olarr;</button>
-          <button id="btn_r" class="button">&orarr;</button>
-        </p>
-        <p><button id="btn_b" class="button">&darr;</button></p> -->
-      </div>
-      <p><button id="btn_s" class="button" onclick=move()>&osol;</button>
-      <button id="btn_c" class="button" onclick=move('c')>Clean</button></p>
+  </div>
+      <p><button id="btn_s" class="button" onclick="move()">&osol;</button>
+      <button id="btn_c" class="button" onclick="move('c')">Clean</button></p>
       <p class="state">state: <span id="state">%STATE%</span></p>
   </div>
   <script>
@@ -106,14 +99,29 @@
     var websocket;
     window.addEventListener('load', onLoad);
     var buttons;
+    var enableWScommunication = false;
+
+    var field = document.getElementById("card");
+    field.addEventListener("touchstart", enableWS);
+    field.addEventListener("touchend", disableWS);
 
     function initWebSocket() {
       console.log('Trying to open a WebSocket connection...');
       websocket = new WebSocket(gateway);
-      // websocket.onopen = onOpen;
-      // websocket.onclose = onClose;
-      websocket.onmessage = onMessage; // <-- add this line
+      websocket.onopen = onOpen;
+      websocket.onclose = onClose;
+      websocket.onmessage = onMessage;
     }
+
+    function onOpen()
+    {
+      alert("connected");
+    }
+
+    function onClose() {
+      alert("disconnected");
+    }
+
     function onMessage(event) {
       var state;
       if (event.data == "1") {
@@ -128,40 +136,56 @@
       initWebSocket();
       // initButton();
     }
-    function initButton() {
-      // document.getElementById('buttons').addEventListener('click', toggle);
+    // function initButton() {
+    //   // document.getElementById('buttons').addEventListener('click', toggle);
 
-      buttons = document.querySelectorAll("button");
-      buttons.forEach(function (btn) {
-        btn.addEventListener('click', function (event) {
-          let id = this.id;
-          id = id.substring(id.length - 1);
-          move(id);
-        });
-      });
-    }
+    //   buttons = document.querySelectorAll("button");
+    //   buttons.forEach(function (btn) {
+    //     btn.addEventListener('click', function (event) {
+    //       let id = this.id;
+    //       id = id.substring(id.length - 1);
+    //       move(id);
+    //     });
+    //   });
+    // }
     // function toggle() {
     //     websocket.send('toggle');
     // }
 
+    function enableWS(){
+      enableWScommunication = true;
+      console.log("touch start");
+    }
+    function disableWS(){
+      enableWScommunication = false;
+      console.log("touch end");
+      move();
+    }
     function move(movement = "s") {
       // alert(movement);
-      websocket.send(movement);
+      if(typeof websocket !== 'undefined')
+      {
+        websocket.send(movement);
+      }
     }
 
-    function coordinatesFunc(event, area) {
-      let viewportOffset = area.getBoundingClientRect();
-      // console.log(viewportOffset.top + "," + viewportOffset.left);
-      let fromCenterX = event.clientX - (area.offsetWidth / 2) - viewportOffset.left;
-      let fromCenterY = event.clientY - (area.offsetHeight / 2) - viewportOffset.top;
-      fromCenterX = fromCenterX * 200 /area.offsetWidth;
-      fromCenterY = fromCenterY * 200 / area.offsetHeight;
-      fromCenterX = Math.round(fromCenterX);
-      fromCenterY = Math.round(fromCenterY);
-      // console.log(area.offsetWidth + "," + area.offsetHeight);
-      console.log(fromCenterX + "," + fromCenterY);
-      move(fromCenterX.toString() + "," + fromCenterY.toString());
-      // move(fromCenterX.toString() + "," + fromCenterY.toString() + "," + event.clientX.toString() + "," + area.offsetHeight.toString() + "," + viewportOffset.left.toString());
+    function coordinatesFunc(evt, area) {
+      evt.preventDefault();
+      if (enableWScommunication) {
+        let event = evt.changedTouches[0];
+        let viewportOffset = area.getBoundingClientRect();
+        // console.log(viewportOffset.top + "," + viewportOffset.left);
+        let fromCenterX = event.clientX - (area.offsetWidth / 2) - viewportOffset.left;
+        let fromCenterY = event.clientY - (area.offsetHeight / 2) - viewportOffset.top;
+        fromCenterX = fromCenterX * 200 /area.offsetWidth;
+        fromCenterY = fromCenterY * 200 / area.offsetHeight;
+        fromCenterX = Math.round(fromCenterX);
+        fromCenterY = Math.round(fromCenterY);
+        // console.log(area.offsetWidth + "," + area.offsetHeight);
+        console.log(fromCenterX + "," + fromCenterY);
+        move(fromCenterX.toString() + "," + fromCenterY.toString());
+        // move(fromCenterX.toString() + "," + fromCenterY.toString() + "," + event.clientX.toString() + "," + area.offsetHeight.toString() + "," + viewportOffset.left.toString());
+      }
     }
   </script>
 </body>
