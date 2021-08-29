@@ -23,7 +23,7 @@
 #define ROOMBA_LOST_LIMIT 60000
 
 ////////////////// Roomba set up //////////////////////////
-#define MOTOR_SPEED_FACTOR 2.5f
+#define MOTOR_SPEED_FACTOR 3.5f
 #define MOTOR_SPEED_STEP 20
 #define SPEED_LIMIT 100
 #define DISTANCE_LIMIT 10000

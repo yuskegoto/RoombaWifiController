@@ -43,10 +43,10 @@ void Roomba::set19200(void){
   for (uint8_t i = 0; i <= 3; i++){
     digitalWrite(brc,HIGH);
     debug.ledOn();
-    delay(100);
+    delay(50);
     digitalWrite(brc,LOW);
     debug.ledOff();
-    delay(100);
+    delay(50);
   }
 }
 
@@ -396,46 +396,70 @@ bool Roomba::roboInit(){
 bool Roomba::roboInitSequence(){
   bool roboStart = false;
 
-  if(!roboInit()){
-    for(uint8_t i = 0; i < SERIAL_RETRY_COUNT; i ++){
-      delay(1000);
-      reset();
-      delay(3000);
-      if(roboInit()){
-        roboStart = true;
-        break;
+  // setBaud(Baud115200);
+  // Serial2.flush();
+  // delay(50);
+  // Serial2.end();
+  // delay(50);
+  // Serial2.begin(115200);
+  // delay(50);
 
+  if(!roboInit()){
+    for (uint8_t i = 1; i <= SERIAL_RETRY_COUNT; i++)
+    {
+      // while(!roboInit()){
+      debug.printf(DEBUG_GENERAL, "retry:%d\n", i);
+      M5.Lcd.printf("retry:%d\n", i);
+        // delay(1000);
+        reset();
+        delay(1000);
+        if(roboInit()){
+          roboStart = true;
+          break;
       }
     }
 
     //if roomba doesn't answer, try to communicate on 19200 bps
     if(!roboStart){
-      debug.println(F("try to connect robo in 19200 bps..."), DEBUG_GENERAL);
+      debug.println(F("try to connect robo in 19200 bps..."), DEBUG_CONTROL);
+      M5.Lcd.println(F("Connect robo in 19200 bps..."));
       Serial2.flush();
       delay(100);
       Serial2.end();
       delay(100);
       Serial2.begin(19200);
+      delay(100);
     }
 
-    for(uint8_t k = 0; k < 8; k++){
-      setBaud(Baud19200);
+    for (uint8_t k = 1; k <= SERIAL_RETRY_COUNT; k++)
+    {
+      debug.printf(DEBUG_GENERAL, "Baud change: %d\n", k);
+      M5.Lcd.printf("Baud change:%d\n", k);
+      // setBaud(Baud19200);
       set19200();
-      delay(3000);
+      delay(1000);
       //check robot answers now
       if(roboInit()){
         roboStart = true;
-        k = 8;
+        // k = 8;
         //if roomba answered, change baud rate to 115200
         setBaud(Baud115200);
         Serial2.flush();
-        delay(100);
+        delay(50);
         Serial2.end();
-        delay(100);
+        delay(50);
         Serial2.begin(115200);
+        delay(50);
+        debug.println("Connection successful", DEBUG_GENERAL);
+        M5.Lcd.println("Robo connection successful");
+        break;
       }
     }
   }
+  else{
+    roboStart = true;
+  }
+
   return roboStart;
 }
 

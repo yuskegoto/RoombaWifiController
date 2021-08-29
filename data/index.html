@@ -100,6 +100,7 @@
     window.addEventListener('load', onLoad);
     var buttons;
     var enableWScommunication = false;
+    var firstConnection = true;
 
     var field = document.getElementById("card");
     field.addEventListener("touchstart", enableWS);
@@ -115,11 +116,15 @@
 
     function onOpen()
     {
-      alert("connected");
+      if(firstConnection)
+      {
+        alert("connected");
+        firstConnection = false;
+      }
     }
 
     function onClose() {
-      alert("disconnected");
+      // alert("disconnected");
       initWebSocket();
     }
 

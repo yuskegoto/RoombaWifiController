@@ -303,7 +303,6 @@ void setup() {
     Serial.begin(MONITOR_BAUD);
     // Serial2.begin(unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert)
     Serial2.begin(115200, SERIAL_8N1, 16, 17);
-    debug.println(F("M5-Roomba"), DEBUG_GENERAL);
 
     M5.begin();
     M5.Power.begin();
@@ -313,6 +312,9 @@ void setup() {
     M5.Lcd.setCursor(0,0);
     M5.Lcd.setBrightness(0x80);
 
+    debug.println(F("M5-Roomba"), DEBUG_GENERAL);
+    M5.Lcd.println(F("M5 roomba"));
+
     if(!SPIFFS.begin(true))
     {
         debug.println("error on mounting SPIFFS", DEBUG_SPIFFS);
@@ -320,7 +322,11 @@ void setup() {
     }
 
 #ifndef DEBUG_ONLY_WEB
-    roomba.roboInitSequence();
+    uint8_t retryCount = 0;
+    while(!roomba.roboInitSequence()){
+        debug.printf(DEBUG_GENERAL, "Retry sequence:%d\n", retryCount++);
+    }
+    // roomba.roboInitSequence();
 #endif
 
     String deviceName = SSID;
